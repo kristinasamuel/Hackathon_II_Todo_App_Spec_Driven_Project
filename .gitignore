@@ -1,0 +1,186 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Testing
+coverage/
+*.lcov
+
+# Next.js
+.next/
+out/
+
+# Production build
+dist/
+build/
+
+# Environment variables
+.env*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Unit test cache directory
+.jest/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Browser extensions
+extension/
+
+# TypeScript
+*.tsbuildinfo
+*.jspm-cache
+jspm_packages/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary folders
+tmp/
+temp/
+
+# Legacy build outputs
+public/dist
+production
+
+# npm
+doc/
+logs/
+npm-debug.log*
+node_modules/
+.nyc_output
+
+# Coverage directory used by tools like istanbul
+coverage/
+.lib/
+src/external/
+*.tgz
+*.tmp
+
+# Backend specific ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+
+# Docker
+.dockerignore
+*.dockerignore
+
+# Backend build artifacts
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Backend specific
+instance/
+.webassets-cache
+celerybeat-schedule
+*.local.yml
+.sass-cache/
+
+# Frontend specific
+.nuxt/
+*.aux
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+*~
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Backend Python ignores
+*.sqlite
+*.db
+.sqlite-shm
+.sqlite-wal
+
+# Backend config
+.settings/
+nbproject/
+
+# Backend specific files
+*.swp
+*.swo
+*~
+Session.vim
+Session.tmp
+
+# Frontend build artifacts
+.next/cache/
+out/_next/static/chunks/
+out/_next/static/development/
+
+# Next.js specific
+.next/static/chunks/
+.next/static/webpack/
+.next/static/css/
+.next/server/
+.next/export/
+.next/cache/
+.next/build-manifest.json
+.next/prerender-manifest.json
+.next/react-loadable-manifest.json
+.next/required-server-files.json
+.next/server-webpack/
+.next/image-manifest.json
+.next/standalone/
+.next/trace
+
+# VSCode Next.js extension
+.vscode/.next/

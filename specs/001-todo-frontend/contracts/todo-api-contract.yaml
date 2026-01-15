@@ -1,0 +1,299 @@
+# API Contract: Todo Frontend - Backend Integration
+
+## Overview
+This document defines the API contracts between the frontend application and the backend services for the Todo application.
+
+## Base URL
+```
+http://localhost:8000 (development)
+https://api.todoapp.com (production)
+```
+
+## Authentication
+All authenticated endpoints require a JWT token in the Authorization header:
+```
+Authorization: Bearer <jwt_token>
+```
+
+## Endpoints
+
+### Authentication Endpoints
+
+#### POST /auth/validate
+Validate JWT token and return user information
+
+**Request:**
+```
+Headers:
+  Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```
+Status: 200 OK
+{
+  "valid": true,
+  "user_id": "string",
+  "email": "string",
+  "expires_at": "ISO date string"
+}
+```
+
+**Error Response:**
+```
+Status: 401 Unauthorized
+{
+  "error": "Invalid token",
+  "message": "Token validation failed"
+}
+```
+
+#### GET /auth/me
+Get current user information
+
+**Request:**
+```
+Headers:
+  Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```
+Status: 200 OK
+{
+  "user_id": "string",
+  "email": "string",
+  "created_at": "ISO date string"
+}
+```
+
+#### POST /auth/refresh
+Refresh expired JWT token
+
+**Request:**
+```
+Headers:
+  Authorization: Bearer <refresh_token>
+```
+
+**Response:**
+```
+Status: 200 OK
+{
+  "access_token": "string",
+  "expires_at": "ISO date string"
+}
+```
+
+### Task Management Endpoints
+
+#### GET /api/{user_id}/tasks
+Get all tasks for a specific user
+
+**Path Parameters:**
+- `user_id`: The ID of the user whose tasks to retrieve
+
+**Request:**
+```
+Headers:
+  Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```
+Status: 200 OK
+{
+  "tasks": [
+    {
+      "id": "string",
+      "title": "string",
+      "description": "string",
+      "completed": false,
+      "created_at": "ISO date string",
+      "updated_at": "ISO date string",
+      "due_date": "ISO date string",
+      "priority": "low|medium|high",
+      "category": "string",
+      "user_id": "string"
+    }
+  ]
+}
+```
+
+#### POST /api/{user_id}/tasks
+Create a new task for a user
+
+**Path Parameters:**
+- `user_id`: The ID of the user creating the task (must match authenticated user)
+
+**Request:**
+```
+Headers:
+  Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+Body:
+{
+  "title": "string",
+  "description": "string",
+  "due_date": "ISO date string",
+  "priority": "low|medium|high",
+  "category": "string"
+}
+```
+
+**Response:**
+```
+Status: 201 Created
+{
+  "id": "string",
+  "title": "string",
+  "description": "string",
+  "completed": false,
+  "created_at": "ISO date string",
+  "updated_at": "ISO date string",
+  "due_date": "ISO date string",
+  "priority": "low|medium|high",
+  "category": "string",
+  "user_id": "string"
+}
+```
+
+#### PUT /api/{user_id}/tasks/{id}
+Update an existing task
+
+**Path Parameters:**
+- `user_id`: The ID of the user (must match authenticated user)
+- `id`: The ID of the task to update
+
+**Request:**
+```
+Headers:
+  Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+Body:
+{
+  "title": "string",
+  "description": "string",
+  "completed": false,
+  "due_date": "ISO date string",
+  "priority": "low|medium|high",
+  "category": "string"
+}
+```
+
+**Response:**
+```
+Status: 200 OK
+{
+  "id": "string",
+  "title": "string",
+  "description": "string",
+  "completed": false,
+  "created_at": "ISO date string",
+  "updated_at": "ISO date string",
+  "due_date": "ISO date string",
+  "priority": "low|medium|high",
+  "category": "string",
+  "user_id": "string"
+}
+```
+
+#### PATCH /api/{user_id}/tasks/{id}/complete
+Toggle task completion status
+
+**Path Parameters:**
+- `user_id`: The ID of the user (must match authenticated user)
+- `id`: The ID of the task to update
+
+**Request:**
+```
+Headers:
+  Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+Body:
+{
+  "completed": true
+}
+```
+
+**Response:**
+```
+Status: 200 OK
+{
+  "id": "string",
+  "title": "string",
+  "description": "string",
+  "completed": true,
+  "created_at": "ISO date string",
+  "updated_at": "ISO date string",
+  "due_date": "ISO date string",
+  "priority": "low|medium|high",
+  "category": "string",
+  "user_id": "string"
+}
+```
+
+#### DELETE /api/{user_id}/tasks/{id}
+Delete a task
+
+**Path Parameters:**
+- `user_id`: The ID of the user (must match authenticated user)
+- `id`: The ID of the task to delete
+
+**Request:**
+```
+Headers:
+  Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```
+Status: 204 No Content
+```
+
+**Error Response:**
+```
+Status: 404 Not Found
+{
+  "error": "Not found",
+  "message": "Task not found"
+}
+
+Status: 403 Forbidden
+{
+  "error": "Forbidden",
+  "message": "Access denied to this resource"
+}
+```
+
+## Error Handling
+
+### Standard Error Format
+All error responses follow this format:
+```
+{
+  "error": "Error type",
+  "message": "Human-readable error message",
+  "details": { ... } // Optional additional details
+}
+```
+
+### Common Status Codes
+- `200 OK`: Request successful
+- `201 Created`: Resource created successfully
+- `204 No Content`: Request successful, no content to return
+- `400 Bad Request`: Invalid request format or parameters
+- `401 Unauthorized`: Missing or invalid authentication
+- `403 Forbidden`: Valid authentication but insufficient permissions
+- `404 Not Found`: Requested resource doesn't exist
+- `422 Unprocessable Entity`: Valid request but semantic errors
+- `500 Internal Server Error`: Server error
+
+## Rate Limiting
+Authentication endpoints are rate limited to prevent abuse:
+- Maximum 10 requests per minute per IP for authentication endpoints
+- Returns 429 Too Many Requests when limit exceeded
+- Retry-After header indicates when to retry
