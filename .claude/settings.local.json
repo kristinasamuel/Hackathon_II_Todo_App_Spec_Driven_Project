@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(taskkill /f /im uvicorn.exe)",
+      "Bash(tasklist)",
+      "Bash(findstr uvicorn)"
+    ]
+  }
+}

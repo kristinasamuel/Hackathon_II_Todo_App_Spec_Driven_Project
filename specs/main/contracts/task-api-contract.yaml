@@ -1,0 +1,379 @@
+# API Contracts: TaskManager Pro - Phase II Frontend
+
+## Authentication Endpoints
+
+### POST /auth/register
+**Description**: Register a new user account
+
+**Request**:
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Response (200)**:
+```json
+{
+  "id": "user-uuid-string",
+  "email": "user@example.com",
+  "created_at": "2026-01-16T10:00:00.000Z",
+  "updated_at": "2026-01-16T10:00:00.000Z"
+}
+```
+
+**Response (400)**:
+```json
+{
+  "detail": "Email already registered"
+}
+```
+
+### POST /auth/login
+**Description**: Authenticate user and return JWT token
+
+**Request**:
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Response (200)**:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer"
+}
+```
+
+**Response (401)**:
+```json
+{
+  "detail": "Incorrect email or password"
+}
+```
+
+## Task Management Endpoints
+
+### GET /api/{user_id}/tasks
+**Description**: Get all tasks for a specific user
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Path Parameters**:
+- user_id: string (the authenticated user's ID)
+
+**Response (200)**:
+```json
+[
+  {
+    "id": "task-uuid-string",
+    "title": "Complete project proposal",
+    "description": "Finish the project proposal document",
+    "completed": false,
+    "user_id": "user-uuid-string",
+    "created_at": "2026-01-16T09:30:00.000Z",
+    "updated_at": "2026-01-16T09:30:00.000Z"
+  },
+  {
+    "id": "task-uuid-string-2",
+    "title": "Review code changes",
+    "description": "Review the pull request from team member",
+    "completed": true,
+    "user_id": "user-uuid-string",
+    "created_at": "2026-01-16T08:15:00.000Z",
+    "updated_at": "2026-01-16T08:45:00.000Z"
+  }
+]
+```
+
+**Response (401)**:
+```json
+{
+  "detail": "Could not validate credentials"
+}
+```
+
+### POST /api/{user_id}/tasks
+**Description**: Create a new task for the user
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Path Parameters**:
+- user_id: string (the authenticated user's ID)
+
+**Request**:
+```json
+{
+  "title": "New task title",
+  "description": "Optional task description",
+  "completed": false
+}
+```
+
+**Response (200)**:
+```json
+{
+  "id": "new-task-uuid-string",
+  "title": "New task title",
+  "description": "Optional task description",
+  "completed": false,
+  "user_id": "user-uuid-string",
+  "created_at": "2026-01-16T10:15:00.000Z",
+  "updated_at": "2026-01-16T10:15:00.000Z"
+}
+```
+
+**Response (401)**:
+```json
+{
+  "detail": "Could not validate credentials"
+}
+```
+
+**Response (403)**:
+```json
+{
+  "detail": "Not authorized to create tasks for this user"
+}
+```
+
+### GET /api/{user_id}/tasks/{id}
+**Description**: Get a specific task
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Path Parameters**:
+- user_id: string (the authenticated user's ID)
+- id: string (the task ID)
+
+**Response (200)**:
+```json
+{
+  "id": "task-uuid-string",
+  "title": "Existing task title",
+  "description": "Optional task description",
+  "completed": false,
+  "user_id": "user-uuid-string",
+  "created_at": "2026-01-16T10:00:00.000Z",
+  "updated_at": "2026-01-16T10:00:00.000Z"
+}
+```
+
+**Response (401)**:
+```json
+{
+  "detail": "Could not validate credentials"
+}
+```
+
+**Response (403)**:
+```json
+{
+  "detail": "Not authorized to access this task"
+}
+```
+
+**Response (404)**:
+```json
+{
+  "detail": "Task not found"
+}
+```
+
+### PUT /api/{user_id}/tasks/{id}
+**Description**: Update an existing task
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Path Parameters**:
+- user_id: string (the authenticated user's ID)
+- id: string (the task ID)
+
+**Request**:
+```json
+{
+  "title": "Updated task title",
+  "description": "Updated task description",
+  "completed": true
+}
+```
+
+**Response (200)**:
+```json
+{
+  "id": "task-uuid-string",
+  "title": "Updated task title",
+  "description": "Updated task description",
+  "completed": true,
+  "user_id": "user-uuid-string",
+  "created_at": "2026-01-16T10:00:00.000Z",
+  "updated_at": "2026-01-16T10:30:00.000Z"
+}
+```
+
+**Response (401)**:
+```json
+{
+  "detail": "Could not validate credentials"
+}
+```
+
+**Response (403)**:
+```json
+{
+  "detail": "Not authorized to update this task"
+}
+```
+
+**Response (404)**:
+```json
+{
+  "detail": "Task not found"
+}
+```
+
+### DELETE /api/{user_id}/tasks/{id}
+**Description**: Delete a task
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Path Parameters**:
+- user_id: string (the authenticated user's ID)
+- id: string (the task ID)
+
+**Response (200)**:
+```json
+{
+  "message": "Task deleted successfully"
+}
+```
+
+**Response (401)**:
+```json
+{
+  "detail": "Could not validate credentials"
+}
+```
+
+**Response (403)**:
+```json
+{
+  "detail": "Not authorized to delete this task"
+}
+```
+
+**Response (404)**:
+```json
+{
+  "detail": "Task not found"
+}
+```
+
+### PATCH /api/{user_id}/tasks/{id}/complete
+**Description**: Toggle task completion status
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Path Parameters**:
+- user_id: string (the authenticated user's ID)
+- id: string (the task ID)
+
+**Response (200)**:
+```json
+{
+  "id": "task-uuid-string",
+  "title": "Task title",
+  "description": "Task description",
+  "completed": true,
+  "user_id": "user-uuid-string",
+  "created_at": "2026-01-16T10:00:00.000Z",
+  "updated_at": "2026-01-16T10:45:00.000Z"
+}
+```
+
+**Response (401)**:
+```json
+{
+  "detail": "Could not validate credentials"
+}
+```
+
+**Response (403)**:
+```json
+{
+  "detail": "Not authorized to update this task"
+}
+```
+
+**Response (404)**:
+```json
+{
+  "detail": "Task not found"
+}
+```
+
+## Common Error Responses
+
+### 401 Unauthorized
+```json
+{
+  "detail": "Could not validate credentials"
+}
+```
+
+### 403 Forbidden
+```json
+{
+  "detail": "Not authorized to access these tasks"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "detail": "Task not found"
+}
+```
+
+### 422 Validation Error
+```json
+{
+  "detail": "Validation error occurred"
+}
+```
+
+## Security Requirements
+
+### Authentication
+- All task endpoints require JWT token in Authorization header
+- Format: `Authorization: Bearer {token}`
+- Token must be valid and not expired
+- User must only access their own tasks (user_id must match authenticated user)
+
+### Rate Limiting
+- API endpoints may implement rate limiting
+- Recommended retry strategy: exponential backoff
+
+## Request/Response Formats
+
+### Content Type
+- Requests: `application/json`
+- Responses: `application/json`
+
+### Timestamp Format
+- All datetime fields use ISO 8601 format: `YYYY-MM-DDTHH:mm:ss.SSSZ`
+
+### Pagination
+- For future expansion, API may support pagination with query parameters:
+  - `?limit=20&offset=0`
+  - Response would include pagination metadata

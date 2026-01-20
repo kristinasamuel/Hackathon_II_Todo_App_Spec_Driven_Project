@@ -10,7 +10,9 @@ src/database/__init__.py
 src/database/database.py
 src/middleware/auth_middleware.py
 src/models/__init__.py
+src/models/task.py
 src/models/task_model.py
+src/models/user.py
 src/models/user_model.py
 src/services/__init__.py
 src/services/auth_service.py
