@@ -50,7 +50,7 @@ app.add_exception_handler(429, _rate_limit_exceeded_handler)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Allow both localhost variations
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "https://*.vercel.app"],  # Allow localhost and Vercel deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
