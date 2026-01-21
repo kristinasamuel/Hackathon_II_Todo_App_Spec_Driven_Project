@@ -1,18 +1,18 @@
 import api from './api';
 import { jwtDecode } from 'jwt-decode';
 
-interface LoginCredentials {
+export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-interface RegisterCredentials {
+export interface RegisterCredentials {
   email: string;
   password: string;
   name?: string;
 }
 
-interface User {
+export interface User {
   id: string;
   email: string;
   name?: string;

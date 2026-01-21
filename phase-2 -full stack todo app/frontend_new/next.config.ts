@@ -1,31 +1,38 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Enable experimental SWC minification for better performance
-  swcMinify: true,
+  // ✅ swcMinify is automatic in new Next.js versions
+  // (removed to fix "Unrecognized key" warning)
 
-  // Optimize images if you plan to use them
+  // ✅ Updated image config (domains → remotePatterns)
   images: {
-    domains: ['localhost', 'your-backend-domain.vercel.app'], // Add your Vercel domain here
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "your-backend-domain.vercel.app", // replace with real backend domain
+      },
+    ],
   },
 
-  // Additional configuration for Vercel deployment
+  // ✅ Rewrites kept clean (no invalid config)
   async rewrites() {
     return [
-      // This is needed for API proxying if needed
+      // Uncomment ONLY if you really need API proxying
       // {
-      //   source: '/api/:path*',
+      //   source: "/api/:path*",
       //   destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/:path*`,
       // },
     ];
   },
 
-  // For static export, uncomment the following:
-  // output: 'export',
-  // trailingSlash: true,
-  // images: {
-  //   unoptimized: true,
-  // },
+  // ✅ Optional: prevents turbopack root warning
+  turbopack: {
+    root: "./",
+  },
 };
 
 export default nextConfig;
