@@ -11,7 +11,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
-
+import uvicorn
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ app.add_exception_handler(429, _rate_limit_exceeded_handler)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Allow both localhost variations
+    allow_origins=["http://localhost:3000", ],  # Allow both localhost variations
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -103,5 +103,4 @@ def health_check():
     return {"status": "healthy", "service": "todo-backend"}
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

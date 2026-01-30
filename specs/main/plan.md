@@ -1,43 +1,44 @@
-# Implementation Plan: TaskManager Pro - Phase II Frontend
+# Implementation Plan: [FEATURE]
 
-**Branch**: `002-frontend-ui` | **Date**: 2026-01-16 | **Spec**: [link](../002-frontend-ui/spec.md)
-**Input**: Feature specification from `/specs/002-frontend-ui/spec.md`
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
 **Note**: This template is filled in by the `/sp.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-Implementation of the frontend for TaskManager Pro using Next.js 16+ with App Router. This includes a professional, responsive UI with authentication flow (signup/login), task management features (CRUD operations), and secure integration with the backend API using JWT tokens. The design follows classic, professional principles with subtle colors and clean typography.
+[Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.x, JavaScript ES2022
-**Primary Dependencies**: Next.js 16+, React 18+, Tailwind CSS 3.x, Axios, React Hooks
-**Storage**: Browser localStorage for JWT tokens, API for task data
-**Testing**: Jest, React Testing Library, Cypress for end-to-end tests
-**Target Platform**: Web browsers (Chrome, Firefox, Safari, Edge)
-**Project Type**: Web application frontend
-**Performance Goals**: <3s page load time, <2s API response time, responsive UI interactions
-**Constraints**: Professional conservative design, JWT token security, user isolation enforcement
-**Scale/Scope**: Individual user task management with responsive design for all devices
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
+
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Project Type**: [single/web/mobile - determines source structure]  
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- ✅ Spec-Driven Development First: Following the frontend specification from spec.md
-- ✅ Phase Isolation & Progression: Building on existing backend, maintaining separation
-- ✅ Accuracy & Determinism: All features will match the written spec exactly
-- ✅ AI-Native Design: Not applicable for this frontend phase
-- ✅ Cloud-Native & DevOps Discipline: Will follow Next.js deployment best practices
-- ✅ Quality Standards: All features will be spec-traceable with proper error handling
+[Gates determined based on constitution file]
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/002-frontend-ui/
+specs/[###-feature]/
 ├── plan.md              # This file (/sp.plan command output)
 ├── research.md          # Phase 0 output (/sp.plan command)
 ├── data-model.md        # Phase 1 output (/sp.plan command)
@@ -47,43 +48,51 @@ specs/002-frontend-ui/
 ```
 
 ### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-phase-2 -full stack todo app/frontend/
-├── app/                    # Next.js App Router pages
-│   ├── login/
-│   │   └── page.tsx
-│   ├── signup/
-│   │   └── page.tsx
-│   ├── dashboard/
-│   │   └── page.tsx
-│   ├── layout.tsx
-│   └── page.tsx
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
+
+tests/
+├── contract/
+├── integration/
+└── unit/
+
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
 ├── src/
-│   ├── components/         # Reusable UI components
-│   │   ├── auth/
-│   │   │   ├── LoginForm.tsx
-│   │   │   └── SignupForm.tsx
-│   │   ├── tasks/
-│   │   │   ├── TaskList.tsx
-│   │   │   ├── TaskItem.tsx
-│   │   │   └── TaskForm.tsx
-│   │   └── ui/
-│   ├── services/           # API and business logic
-│   │   ├── api.ts
-│   │   ├── auth.ts
-│   │   └── tasks.ts
-│   ├── hooks/              # Custom React hooks
-│   │   ├── useAuth.ts
-│   │   └── useTasks.ts
-│   └── utils/              # Utility functions
-├── public/                 # Static assets
-├── package.json
-├── tsconfig.json
-└── tailwind.config.js
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
+
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: Following the web application structure with Next.js App Router, organizing components by feature (auth, tasks, ui) and services by functionality (api, auth, tasks). The structure aligns with the requirements in the spec to provide authentication, task management, and responsive UI.
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Complexity Tracking
 
@@ -91,4 +100,5 @@ phase-2 -full stack todo app/frontend/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [N/A] | [N/A] | [N/A] |
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

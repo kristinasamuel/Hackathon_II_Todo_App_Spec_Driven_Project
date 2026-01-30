@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: AI Todo Chatbot API
+  version: 1.0.0
+  description: API for AI-powered todo chatbot functionality
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Process natural language input and return AI-generated response
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user requesting the chat
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: The natural language message from the user
+                  example: "Add a task to buy groceries"
+                conversation_id:
+                  type: string
+                  description: Optional existing conversation ID to continue conversation
+                  example: "a1b2c3d4-e5f6-7890-abcd-ef0123456789"
+              required:
+                - message
+      responses:
+        '200':
+          description: Successful response from AI chatbot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                    description: AI-generated response to the user
+                    example: "I've added the task 'buy groceries' to your list."
+                  conversation_id:
+                    type: string
+                    description: The conversation ID (new or existing)
+                    example: "a1b2c3d4-e5f6-7890-abcd-ef0123456789"
+                  action_taken:
+                    type: string
+                    description: Summary of actions performed by the AI
+                    example: "Created task: buy groceries"
+        '400':
+          description: Bad request - invalid input format
+        '401':
+          description: Unauthorized - invalid or missing authentication token
+        '403':
+          description: Forbidden - user trying to access other user's data
+        '500':
+          description: Internal server error
+      security:
+        - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

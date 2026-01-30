@@ -5,14 +5,17 @@ from sqlmodel import SQLModel, Session
 from src.database import engine
 from src.api.auth import router as auth_router
 from src.api.tasks import router as tasks_router
+from src.api.chat import router as chat_router
 from src.api.auth import get_current_user
 from src.models.user_model import User
+from src.models.task_model import Task
+from src.models.conversation_model import Conversation, Message
 from src.services.auth_service import create_default_admin_user
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create tables
+    # Create tables including the new conversation and message tables
     SQLModel.metadata.create_all(bind=engine)
 
     # Create default admin user
@@ -41,6 +44,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth_router, prefix="/auth", tags=["authentication"])
 app.include_router(tasks_router, prefix="/api", tags=["tasks"])
+app.include_router(chat_router, prefix="/api", tags=["chat"])
 
 @app.get("/")
 def read_root():

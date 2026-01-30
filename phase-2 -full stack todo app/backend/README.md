@@ -114,4 +114,3 @@ The system consists of several key components:
 
 ```
 backend/
-
