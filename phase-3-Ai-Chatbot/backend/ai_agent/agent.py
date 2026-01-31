@@ -4,7 +4,6 @@ from typing import Dict, Any, List
 import asyncio
 import json
 
-# Using absolute imports for the backend structure
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
