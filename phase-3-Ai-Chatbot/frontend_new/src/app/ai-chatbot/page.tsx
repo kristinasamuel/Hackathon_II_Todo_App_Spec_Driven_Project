@@ -51,7 +51,7 @@ const AIChatbotPage = () => {
       if (!API_BASE_URL) {
         throw new Error('NEXT_PUBLIC_API_BASE_URL is not defined. Please check your environment variables.');
       }
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+      const response = await fetch(`${API_BASE_URL}api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
