@@ -6,8 +6,8 @@ if (!API_BASE_URL) {
   console.error('NEXT_PUBLIC_API_BASE_URL is not defined. Please check your environment variables.');
 }
 
-// Default to a placeholder if not defined, though this should ideally be configured properly
-const BASE_URL = API_BASE_URL || '';
+// Remove trailing slash if present to avoid double slashes in URL
+const BASE_URL = API_BASE_URL ? (API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL) : '';
 
 class ApiService {
   private axiosInstance: AxiosInstance;
@@ -15,6 +15,7 @@ class ApiService {
   constructor() {
     this.axiosInstance = axios.create({
       baseURL: BASE_URL,
+      withCredentials: true, // Enable credentials for cross-origin requests
     });
 
     // Request interceptor to add JWT token

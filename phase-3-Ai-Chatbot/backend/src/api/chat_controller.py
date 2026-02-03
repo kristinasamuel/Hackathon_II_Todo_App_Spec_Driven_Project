@@ -8,8 +8,23 @@ from ..services.auth_service import AuthService
 from ..models.user_model import User
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from ai_agent.agent import process_user_message
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+try:
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+    from ai_agent.agent import process_user_message
+    logger.info("Successfully imported ai_agent.agent")
+except ImportError as e:
+    logger.error(f"Failed to import ai_agent.agent: {e}")
+    # Re-raise the exception to cause a startup failure which will be visible
+    raise
+except Exception as e:
+    logger.error(f"Unexpected error importing ai_agent.agent: {e}")
+    raise
 from pydantic import BaseModel
 
 
@@ -39,6 +54,24 @@ def process_chat_request(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
+            )
+
+        # Check if the AI agent can be initialized (validate API key is available)
+        try:
+            import sys
+            import os
+            sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+            from ai_agent.agent import TodoChatAgent
+            _ = TodoChatAgent()  # This will raise an error if GEMINI_API_KEY is not set
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"AI service not properly configured: {str(e)}"
+            )
+        except ImportError as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"AI service dependencies not available: {str(e)}"
             )
 
         # Get or create conversation

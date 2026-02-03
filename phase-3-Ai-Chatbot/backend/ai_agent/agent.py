@@ -6,12 +6,33 @@ import json
 
 import sys
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from mcp_server.tools.task_operations import (
-    execute_add_task, execute_list_tasks, execute_update_task,
-    execute_complete_task, execute_delete_task, execute_get_user_info
-)
+try:
+    from mcp_server.tools.task_operations import (
+        execute_add_task, execute_list_tasks, execute_update_task,
+        execute_complete_task, execute_delete_task, execute_get_user_info
+    )
+    logger.info("Successfully imported mcp_server.tools.task_operations")
+except ImportError as e:
+    logger.error(f"Failed to import mcp_server.tools.task_operations: {e}")
+    # Define dummy functions as fallback
+    def execute_add_task(params): return "Add task functionality not available"
+    def execute_list_tasks(params): return "List tasks functionality not available"
+    def execute_update_task(params): return "Update task functionality not available"
+    def execute_complete_task(params): return "Complete task functionality not available"
+    def execute_delete_task(params): return "Delete task functionality not available"
+    def execute_get_user_info(params): return "Get user info functionality not available"
+    logger.warning("Using fallback functions for task operations")
+except Exception as e:
+    logger.error(f"Unexpected error importing mcp_server.tools.task_operations: {e}")
+    raise
 
 
 class TodoChatAgent:
@@ -22,8 +43,8 @@ class TodoChatAgent:
             raise ValueError("GEMINI_API_KEY environment variable is required")
 
         genai.configure(api_key=api_key)
-        # Use the gemini-2.5-flash model which is currently available
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        # Use the gemini-1.5-flash model which is more widely available
+        self.model = genai.GenerativeModel('gemini-1.5-flash')
 
     async def process_message(self, user_id: str, message: str, conversation_history: List[Dict[str, str]] = None) -> str:
         """

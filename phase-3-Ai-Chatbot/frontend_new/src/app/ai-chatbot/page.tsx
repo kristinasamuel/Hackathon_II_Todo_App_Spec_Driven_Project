@@ -51,12 +51,16 @@ const AIChatbotPage = () => {
       if (!API_BASE_URL) {
         throw new Error('NEXT_PUBLIC_API_BASE_URL is not defined. Please check your environment variables.');
       }
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+
+      // Remove trailing slash if present to avoid double slashes in URL
+      const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+      const response = await fetch(`${baseUrl}api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        credentials: 'include', // Include credentials for cross-origin requests
         body: JSON.stringify({
           message: inputValue,
           conversation_id: localStorage.getItem('chat_conversation_id') || null,
