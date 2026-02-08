@@ -37,9 +37,3 @@ The API will be available at http://127.0.0.1:8000
 - `PUT /api/tasks/{id}` - Update a task
 - `DELETE /api/tasks/{id}` - Delete a task
 - `POST /api/chat` - Chat with AI assistant
-
-
-
-<!-- ~$ code ~/.claude-code-router/config.json -->
-
-<!-- ~$ code ~/.claude-code-router/config.json -->
