@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskEvent",
+  "description": "Schema for events related to task CRUD operations.",
+  "type": "object",
+  "required": [
+    "eventType",
+    "taskId",
+    "userId"
+  ],
+  "properties": {
+    "eventType": {
+      "type": "string",
+      "description": "Type of event (e.g., TaskCreated, TaskUpdated, TaskDeleted).",
+      "enum": ["TaskCreated", "TaskUpdated", "TaskDeleted"]
+    },
+    "taskId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The unique identifier of the task."
+    },
+    "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The unique identifier of the user who owns the task."
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the task.",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "description": {
+      "type": ["string", "null"],
+      "description": "Description of the task.",
+      "maxLength": 1000
+    },
+    "completed": {
+      "type": "boolean",
+      "description": "Completion status of the task."
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "Priority of the task."
+    },
+    "dueDate": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Due date of the task in ISO 8601 format."
+    },
+    "isRecurring": {
+      "type": "boolean",
+      "description": "Indicates if the task is recurring."
+    },
+    "recurrenceRule": {
+      "type": ["string", "null"],
+      "description": "Recurrence rule for the task (e.g., RRule string)."
+    },
+    "reminderAt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Time to send a reminder for the task in ISO 8601 format."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "name"]
+      },
+      "description": "List of tags associated with the task."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the event occurred."
+    }
+  }
+}

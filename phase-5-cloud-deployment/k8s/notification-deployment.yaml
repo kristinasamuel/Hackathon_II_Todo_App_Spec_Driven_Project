@@ -1,0 +1,59 @@
+apiVersion: apps.kubernetes.io/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: todo-app
+  labels:
+    app: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "notification-app"
+        dapr.io/app-port: "8003"
+        dapr.io/config: "appconfig" # Refer to a Dapr Configuration if needed
+        dapr.io/log-level: "debug"
+    spec:
+      containers:
+        - name: notification-service
+          image: todo-notification # This image needs to be built and pushed to a registry
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8003
+          env:
+            - name: DAPR_HTTP_PORT
+              value: "3500"
+            - name: DAPR_GRPC_PORT
+              value: "50001"
+            - name: DATABASE_URL
+              value: "postgresql+psycopg2://postgres:example@postgres:5432/todo_db"
+          resources:
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+            requests:
+              cpu: "150m"
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: todo-app
+  labels:
+    app: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - protocol: TCP
+      port: 8003
+      targetPort: 8003
+  type: ClusterIP

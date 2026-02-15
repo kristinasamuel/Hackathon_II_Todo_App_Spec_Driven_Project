@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReminderEvent",
+  "description": "Schema for events signaling that a reminder is due.",
+  "type": "object",
+  "required": [
+    "eventType",
+    "reminderId",
+    "taskId",
+    "userId",
+    "reminderTime",
+    "timestamp"
+  ],
+  "properties": {
+    "eventType": {
+      "type": "string",
+      "description": "Type of event (e.g., ReminderDue).",
+      "enum": ["ReminderDue"]
+    },
+    "reminderId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The unique identifier of the reminder."
+    },
+    "taskId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The unique identifier of the task the reminder is for."
+    },
+    "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The unique identifier of the user who owns the reminder."
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the task the reminder is for."
+    },
+    "description": {
+      "type": ["string", "null"],
+      "description": "Description of the task the reminder is for."
+    },
+    "reminderTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The exact time the reminder was scheduled to fire in ISO 8601 format."
+    },
+    "notificationChannel": {
+      "type": "string",
+      "description": "Preferred channel for notification (e.g., email, app_push, websocket)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the event occurred."
+    }
+  }
+}

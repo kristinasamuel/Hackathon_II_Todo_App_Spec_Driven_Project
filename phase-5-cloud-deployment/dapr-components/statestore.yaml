@@ -1,0 +1,26 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: todo-app
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  - name: connectionString
+    secretKeyRef:
+      name: postgres-secrets
+      key: connectionString
+  - name: actorStateStore
+    value: "true" # Required for Dapr Actors, useful for general state
+auth:
+  secretStore: kubernetes # Assuming Kubernetes secrets
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secrets
+  namespace: todo-app
+type: Opaque
+data:
+  connectionString: "cG9zdGdyZXNxbDovL3Bvc3RncmVzOmV4YW1wbGVAcG9zdGdyZXM6NTQzMi90b2RvX2Ri" # base64 encoded: postgresql://postgres:example@postgres:5432/todo_db

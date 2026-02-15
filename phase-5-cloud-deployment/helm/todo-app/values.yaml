@@ -1,0 +1,94 @@
+# Default values for todo-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: REPLACE_WITH_YOUR_REGISTRY/todo-backend
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imageFrontend:
+  repository: REPLACE_WITH_YOUR_REGISTRY/todo-frontend
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imageScheduler:
+  repository: REPLACE_WITH_YOUR_REGISTRY/todo-scheduler
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imageReminder:
+  repository: REPLACE_WITH_YOUR_REGISTRY/todo-reminder
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imageNotification:
+  repository: REPLACE_WITH_YOUR_REGISTRY/todo-notification
+  pullPolicy: IfNotPresent
+  tag: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+dapr:
+  enabled: true
+  appPortBackend: 8000
+  appPortScheduler: 8001
+  appPortReminder: 8002
+  appPortNotification: 8003
+  pubsubName: "pubsub"
+  stateStoreName: "statestore"
+  secretStoreName: "secretstore"
+  logLevel: "debug" # debug, info, warn, error
+  config: "appconfig" # Name of Dapr configuration (e.g., in a separate configmap)
+
+database:
+  host: postgres
+  port: 5432
+  name: todo_db
+  user: postgres
+  password: example # Use Kubernetes Secret for production
+
+jwt:
+  secretKey: "your-jwt-secret-key" # Use Kubernetes Secret for production
+  algorithm: "HS256"
+  expireMinutes: 30
+
+frontend:
+  apiBaseUrl: "http://backend:8000" # Internal service name

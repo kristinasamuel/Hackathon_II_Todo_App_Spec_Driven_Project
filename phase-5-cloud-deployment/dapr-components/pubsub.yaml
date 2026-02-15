@@ -1,0 +1,17 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+  namespace: todo-app
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+  - name: brokers
+    value: "redpanda:9092" # Reference the Kubernetes service name for Redpanda
+  - name: authRequired
+    value: "false"
+  - name: consumerGroup
+    value: "todo-app-group"
+  - name: disableTls
+    value: "true" # For local minikube without TLS configured

@@ -1,0 +1,137 @@
+apiVersion: apps.kubernetes.io/v1
+kind: StatefulSet
+metadata:
+  name: redpanda
+  namespace: todo-app
+spec:
+  serviceName: redpanda
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redpanda
+  template:
+    metadata:
+      labels:
+        app: redpanda
+    spec:
+      containers:
+        - name: redpanda
+          image: docker.redpanda.com/redpandadata/redpanda:v23.2.1
+          command: ["rpk", "start", "-c", "/etc/redpanda/redpanda.yaml"]
+          ports:
+            - containerPort: 9092 # Kafka API
+            - containerPort: 9644 # Admin API
+            - containerPort: 8081 # HTTP Proxy
+            - containerPort: 8082 # Schema Registry
+          volumeMounts:
+            - name: datadir
+              mountPath: /var/lib/redpanda/data
+            - name: redpanda-config
+              mountPath: /etc/redpanda
+          env:
+            - name: REDPANDA_BROKER_ID
+              value: "0"
+            - name: REDPANDA_BOOTSTRAP_BROKERS
+              value: "redpanda:9092"
+            - name: REDPANDA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://redpanda:9092,EXTERNAL://localhost:9092"
+            - name: REDPANDA_KAFKA_ENABLE_RPC
+              value: "true"
+          resources:
+            limits:
+              cpu: "500m" # 0.5 CPU
+              memory: "1Gi" # 1 GB
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+      volumes:
+        - name: redpanda-config
+          configMap:
+            name: redpanda-config
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redpanda
+  namespace: todo-app
+spec:
+  selector:
+    app: redpanda
+  ports:
+    - name: kafka-api
+      port: 9092
+      targetPort: 9092
+    - name: admin-api
+      port: 9644
+      targetPort: 9644
+    - name: http-proxy
+      port: 8081
+      targetPort: 8081
+    - name: schema-registry
+      port: 8082
+      targetPort: 8082
+  clusterIP: None # headless service for StatefulSet
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redpanda-config
+  namespace: todo-app
+data:
+  redpanda.yaml: |
+    # Basic Redpanda configuration for Minikube
+    rpk:
+      broker_id: 0
+      kafka_api:
+        advertised_listeners:
+          - name: plaintext
+            address: redpanda:9092
+          - name: external
+            address: localhost:9092
+    
+    # Enable Dapr
+    dapr:
+      enabled: true
+    
+    # Kafka Listener Configuration
+    kafka_api:
+      enabled: true
+      advertised_listeners:
+        - name: PLAINTEXT
+          address: redpanda:9092
+          bind_address: 0.0.0.0
+      listeners:
+        - name: PLAINTEXT
+          port: 9092
+          protocol: kafka
+    
+    # Redpanda Admin API configuration
+    admin_api:
+      enabled: true
+      listeners:
+        - port: 9644
+          protocol: http
+          
+    # HTTP Proxy for Kafka (optional, often used with Dapr)
+    http_proxy:
+      enabled: true
+      listeners:
+        - port: 8081
+          protocol: http
+
+    # Schema Registry (optional, used if you define Avro schemas)
+    schema_registry:
+      enabled: true
+      listeners:
+        - port: 8082
+          protocol: http

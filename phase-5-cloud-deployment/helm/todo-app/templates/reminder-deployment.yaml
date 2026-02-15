@@ -1,0 +1,59 @@
+apiVersion: apps.kubernetes.io/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app.fullname" . }}-reminder
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: reminder-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "todo-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: reminder-service
+  template:
+    metadata:
+      labels:
+        {{- include "todo-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: reminder-service
+      annotations:
+        dapr.io/enabled: {{ .Values.dapr.enabled | quote }}
+        dapr.io/app-id: "{{ include "todo-app.fullname" . }}-reminder-app"
+        dapr.io/app-port: {{ .Values.dapr.appPortReminder | quote }}
+        dapr.io/config: {{ .Values.dapr.config | quote }}
+        dapr.io/log-level: {{ .Values.dapr.logLevel | quote }}
+    spec:
+      containers:
+        - name: reminder-service
+          image: "{{ .Values.imageReminder.repository }}:{{ .Values.imageReminder.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.imageReminder.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.dapr.appPortReminder }}
+          env:
+            - name: DAPR_HTTP_PORT
+              value: "3500"
+            - name: DAPR_GRPC_PORT
+              value: "50001"
+            - name: DATABASE_URL
+              value: "postgresql+psycopg2://{{ .Values.database.user }}:{{ .Values.database.password }}@{{ include "todo-app.fullname" . }}-postgres:{{ .Values.database.port }}/{{ .Values.database.name }}"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "todo-app.fullname" . }}-reminder-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: reminder-service
+spec:
+  selector:
+    {{- include "todo-app.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: reminder-service
+  ports:
+    - protocol: TCP
+      port: {{ .Values.dapr.appPortReminder }}
+      targetPort: {{ .Values.dapr.appPortReminder }}
+  type: ClusterIP

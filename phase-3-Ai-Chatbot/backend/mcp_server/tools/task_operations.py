@@ -1,5 +1,5 @@
 from typing import Dict, Any, List, Optional
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 # Using absolute imports for the backend structure
 import sys
@@ -10,6 +10,7 @@ from src.models.task_model import TaskCreate, TaskUpdate, TaskUpdateCompletion
 from src.services.task_service import TaskService
 from src.services.auth_service import AuthService
 from src.database.database import get_sync_session
+from src.models.task_model import Task
 import json
 
 
@@ -19,6 +20,22 @@ def get_db_session():
     # This ensures we're using the same database connection as the rest of the app
     session_generator = get_sync_session()
     return next(session_generator)
+
+
+def _get_actual_task_id_by_display_number(user_id: str, display_number: int) -> Optional[str]:
+    """
+    Convert a display number (1-indexed) to the actual task ID
+    """
+    with get_db_session() as session:
+        # Get all tasks for the user, ordered by creation date to match display order
+        statement = select(Task).where(Task.user_id == user_id).order_by(Task.created_at.asc())
+        tasks = session.exec(statement).all()
+        
+        # Display numbers are 1-indexed, so subtract 1 to get 0-indexed position
+        if 1 <= display_number <= len(tasks):
+            return tasks[display_number - 1].id
+        else:
+            return None
 
 
 # Functions for task operations that can be called from the AI agent
@@ -80,7 +97,7 @@ def execute_list_tasks(params: Dict[str, Any]) -> str:
 
             task_list = []
             for i, task in enumerate(tasks, 1):
-                status = "✓" if task.completed else "○"
+                status = "X" if task.completed else "O"
                 task_str = f"{i}. [{status}] {task.title}"
                 if task.description:
                     task_str += f" - {task.description}"
@@ -107,6 +124,14 @@ def execute_update_task(params: Dict[str, Any]) -> str:
         if not title and not description:
             return "Error: At least one of title or description must be provided"
 
+        # Check if task_id is a display number (integer) and convert to actual task ID
+        actual_task_id = task_id
+        if isinstance(task_id, int) or (isinstance(task_id, str) and task_id.isdigit()):
+            display_number = int(task_id)
+            actual_task_id = _get_actual_task_id_by_display_number(user_id, display_number)
+            if not actual_task_id:
+                return f"Error: Task #{display_number} not found in your task list"
+
         with get_db_session() as session:
             # Validate user exists
             user_exists = AuthService.validate_user_exists(session, user_id)
@@ -123,10 +148,10 @@ def execute_update_task(params: Dict[str, Any]) -> str:
             task_update = TaskUpdate(**update_data)
 
             # Update the task
-            updated_task = TaskService.update_task(session, task_id, user_id, task_update)
+            updated_task = TaskService.update_task(session, actual_task_id, user_id, task_update)
 
             if not updated_task:
-                return f"Error: Task {task_id} not found or doesn't belong to user"
+                return f"Error: Task {actual_task_id} not found or doesn't belong to user"
 
             return f"Task '{updated_task.title}' has been updated successfully"
     except Exception as e:
@@ -145,6 +170,14 @@ def execute_complete_task(params: Dict[str, Any]) -> str:
         if not user_id or not task_id:
             return "Error: Missing required parameters: user_id and task_id"
 
+        # Check if task_id is a display number (integer) and convert to actual task ID
+        actual_task_id = task_id
+        if isinstance(task_id, int) or (isinstance(task_id, str) and task_id.isdigit()):
+            display_number = int(task_id)
+            actual_task_id = _get_actual_task_id_by_display_number(user_id, display_number)
+            if not actual_task_id:
+                return f"Error: Task #{display_number} not found in your task list"
+
         with get_db_session() as session:
             # Validate user exists
             user_exists = AuthService.validate_user_exists(session, user_id)
@@ -152,15 +185,15 @@ def execute_complete_task(params: Dict[str, Any]) -> str:
                 return f"Error: User {user_id} does not exist"
 
             # Get current task to determine status text
-            current_task = TaskService.get_task_by_id_and_user_id(session, task_id, user_id)
+            current_task = TaskService.get_task_by_id_and_user_id(session, actual_task_id, user_id)
             if not current_task:
-                return f"Error: Task {task_id} not found or doesn't belong to user"
+                return f"Error: Task {actual_task_id} not found or doesn't belong to user"
 
             # Create completion update
             completion_update = TaskUpdateCompletion(completed=completed)
 
             # Update the task completion status
-            updated_task = TaskService.update_task_completion(session, task_id, user_id, completion_update)
+            updated_task = TaskService.update_task_completion(session, actual_task_id, user_id, completion_update)
 
             if not updated_task:
                 return f"Error: Failed to update task completion status"
@@ -182,6 +215,14 @@ def execute_delete_task(params: Dict[str, Any]) -> str:
         if not user_id or not task_id:
             return "Error: Missing required parameters: user_id and task_id"
 
+        # Check if task_id is a display number (integer) and convert to actual task ID
+        actual_task_id = task_id
+        if isinstance(task_id, int) or (isinstance(task_id, str) and task_id.isdigit()):
+            display_number = int(task_id)
+            actual_task_id = _get_actual_task_id_by_display_number(user_id, display_number)
+            if not actual_task_id:
+                return f"Error: Task #{display_number} not found in your task list"
+
         with get_db_session() as session:
             # Validate user exists
             user_exists = AuthService.validate_user_exists(session, user_id)
@@ -189,12 +230,12 @@ def execute_delete_task(params: Dict[str, Any]) -> str:
                 return f"Error: User {user_id} does not exist"
 
             # Get task title for confirmation message
-            task = TaskService.get_task_by_id_and_user_id(session, task_id, user_id)
+            task = TaskService.get_task_by_id_and_user_id(session, actual_task_id, user_id)
             if not task:
-                return f"Error: Task {task_id} not found or doesn't belong to user"
+                return f"Error: Task {actual_task_id} not found or doesn't belong to user"
 
             # Delete the task
-            success = TaskService.delete_task(session, task_id, user_id)
+            success = TaskService.delete_task(session, actual_task_id, user_id)
 
             if not success:
                 return f"Error: Failed to delete task"

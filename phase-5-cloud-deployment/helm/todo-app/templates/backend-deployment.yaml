@@ -1,0 +1,64 @@
+apiVersion: apps.kubernetes.io/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app.fullname" . }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "todo-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        {{- include "todo-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+      annotations:
+        dapr.io/enabled: {{ .Values.dapr.enabled | quote }}
+        dapr.io/app-id: "{{ include "todo-app.fullname" . }}-backend-app"
+        dapr.io/app-port: {{ .Values.dapr.appPortBackend | quote }}
+        dapr.io/config: {{ .Values.dapr.config | quote }}
+        dapr.io/log-level: {{ .Values.dapr.logLevel | quote }}
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.dapr.appPortBackend }}
+          env:
+            - name: DATABASE_URL
+              value: "postgresql+psycopg2://{{ .Values.database.user }}:{{ .Values.database.password }}@{{ include "todo-app.fullname" . }}-postgres:{{ .Values.database.port }}/{{ .Values.database.name }}"
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "todo-app.fullname" . }}-jwt-secret
+                  key: secretKey
+            - name: JWT_ALGORITHM
+              value: {{ .Values.jwt.algorithm | quote }}
+            - name: ACCESS_TOKEN_EXPIRE_MINUTES
+              value: {{ .Values.jwt.expireMinutes | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "todo-app.fullname" . }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  selector:
+    {{- include "todo-app.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  ports:
+    - protocol: TCP
+      port: {{ .Values.dapr.appPortBackend }}
+      targetPort: {{ .Values.dapr.appPortBackend }}
+  type: ClusterIP

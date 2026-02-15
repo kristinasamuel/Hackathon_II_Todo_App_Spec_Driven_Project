@@ -1,0 +1,116 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub (Example)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./phase-5-cloud-deployment/backend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/todo-backend:${{ github.sha }}
+
+      - name: Build and Push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./phase-5-cloud-deployment/frontend_new
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/todo-frontend:${{ github.sha }}
+          
+      - name: Build and Push Scheduler Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./phase-5-cloud-deployment/backend/scheduler-service
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/todo-scheduler:${{ github.sha }}
+          
+      - name: Build and Push Reminder Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./phase-5-cloud-deployment/backend/reminder-service
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/todo-reminder:${{ github.sha }}
+          
+      - name: Build and Push Notification Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./phase-5-cloud-deployment/backend/notification-service
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/todo-notification:${{ github.sha }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: staging # Example for staging environment
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Kubeconfig (Example for AKS, GKE, EKS)
+        uses: azure/aks-set-context@v3 # Use appropriate action for your cloud
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} # Example for Azure
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Deploy to Staging
+        run: |
+          helm upgrade --install todo-app ./phase-5-cloud-deployment/helm/todo-app 
+            --namespace todo-app-staging 
+            --create-namespace 
+            --set image.tag=${{ github.sha }} 
+            --set imageFrontend.tag=${{ github.sha }} 
+            --set imageScheduler.tag=${{ github.sha }} 
+            --set imageReminder.tag=${{ github.sha }} 
+            --set imageNotification.tag=${{ github.sha }} 
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/todo-backend 
+            --set imageFrontend.repository=${{ secrets.DOCKER_USERNAME }}/todo-frontend 
+            --set imageScheduler.repository=${{ secrets.DOCKER_USERNAME }}/todo-scheduler 
+            --set imageReminder.repository=${{ secrets.DOCKER_USERNAME }}/todo-reminder 
+            --set imageNotification.repository=${{ secrets.DOCKER_USERNAME }}/todo-notification 
+            -f ./phase-5-cloud-deployment/helm/todo-app/values.yaml 
+            # You would use specific value overrides for staging here, e.g., -f values-staging.yaml
+
+  # deploy-production:
+  #   needs: deploy
+  #   runs-on: ubuntu-latest
+  #   environment: production
+  #   if: github.ref == 'refs/heads/main' # Only deploy main branch to production
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Set up Kubeconfig
+  #       uses: azure/aks-set-context@v3
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #     - name: Install Helm
+  #       uses: azure/setup-helm@v4
+  #     - name: Deploy to Production
+  #       run: |
+  #         helm upgrade --install todo-app ./phase-5-cloud-deployment/helm/todo-app 
+  #           --namespace todo-app-production 
+  #           --create-namespace 
+  #           --set image.tag=${{ github.sha }} 
+  #           # ... and other image tags ...
+  #           -f ./phase-5-cloud-deployment/helm/todo-app/values.yaml 
+  #           # You would use specific value overrides for production here, e.g., -f values-production.yaml

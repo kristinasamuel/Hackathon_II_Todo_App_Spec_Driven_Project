@@ -98,6 +98,12 @@ IMPORTANT: When the user wants to perform a task operation, respond in this spec
 - DELETE TASK: "TASK_OPERATION:DELETE:{{"user_id":"{user_id}","task_id":"task_id"}}"
 - GET USER INFO: "USER_INFO_REQUEST:{{"user_id":"{user_id}"}}"
 
+CRITICAL: When users refer to tasks by number (e.g., 'task 1', 'task 2', 'complete task 3', 'delete task 4'),
+the number represents the display position from the most recent task list shown to the user.
+In these cases, pass the number directly as the 'task_id' parameter.
+For example: if a user says 'complete task 2', generate: TASK_OPERATION:COMPLETE:{{"user_id":"{user_id}","task_id":2,"completed":true}}
+The backend will handle converting the display number to the actual task ID.
+
 For user information requests, you can access the user's information using the user_id provided.
 Always be polite and helpful."""
 

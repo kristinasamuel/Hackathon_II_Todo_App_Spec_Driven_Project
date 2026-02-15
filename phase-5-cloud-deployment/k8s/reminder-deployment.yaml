@@ -1,0 +1,59 @@
+apiVersion: apps.kubernetes.io/v1
+kind: Deployment
+metadata:
+  name: reminder-service
+  namespace: todo-app
+  labels:
+    app: reminder-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reminder-service
+  template:
+    metadata:
+      labels:
+        app: reminder-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "reminder-app"
+        dapr.io/app-port: "8002"
+        dapr.io/config: "appconfig" # Refer to a Dapr Configuration if needed
+        dapr.io/log-level: "debug"
+    spec:
+      containers:
+        - name: reminder-service
+          image: todo-reminder # This image needs to be built and pushed to a registry
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8002
+          env:
+            - name: DAPR_HTTP_PORT
+              value: "3500"
+            - name: DAPR_GRPC_PORT
+              value: "50001"
+            - name: DATABASE_URL
+              value: "postgresql+psycopg2://postgres:example@postgres:5432/todo_db"
+          resources:
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+            requests:
+              cpu: "150m"
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reminder-service
+  namespace: todo-app
+  labels:
+    app: reminder-service
+spec:
+  selector:
+    app: reminder-service
+  ports:
+    - protocol: TCP
+      port: 8002
+      targetPort: 8002
+  type: ClusterIP

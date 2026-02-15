@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskUpdateEvent",
+  "description": "Schema for events related to updates originating from background services (e.g., recurring task instance creation).",
+  "type": "object",
+  "required": [
+    "eventType",
+    "originalTaskId",
+    "newTaskId",
+    "userId",
+    "timestamp"
+  ],
+  "properties": {
+    "eventType": {
+      "type": "string",
+      "description": "Type of event (e.g., RecurringTaskInstanceCreated).",
+      "enum": ["RecurringTaskInstanceCreated"]
+    },
+    "originalTaskId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The ID of the original recurring task."
+    },
+    "newTaskId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The ID of the newly created task instance."
+    },
+    "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The unique identifier of the user who owns the task."
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the new task instance."
+    },
+    "dueDate": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Due date of the new task instance in ISO 8601 format."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the event occurred."
+    }
+  }
+}
