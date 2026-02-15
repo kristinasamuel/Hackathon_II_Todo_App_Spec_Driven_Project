@@ -40,10 +40,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[  "http://localhost:3000",
-        "http://localhost:3001",
-        "https://kristinasamuel-phase-3-ai-chatbot-todo-app.hf.space",
-        "https://kristinasamuel-phase-3-ai-chatbot-todo-app.hf.space/"],  # In production, change this to your frontend URL
+    allow_origins=[  "http://localhost:3000","http://localhost:3001"],  # In production, change this to your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
