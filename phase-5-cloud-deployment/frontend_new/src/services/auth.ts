@@ -1,5 +1,5 @@
 import api from './api';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
 
 export interface LoginCredentials {
   email: string;
@@ -15,6 +15,14 @@ export interface RegisterCredentials {
 export interface User {
   id: string;
   email: string;
+  name?: string;
+}
+
+// Define a custom interface for our JWT payload
+interface CustomJwtPayload extends JwtPayload {
+  user_id?: string;
+  sub?: string;
+  email?: string;
   name?: string;
 }
 
@@ -48,11 +56,11 @@ class AuthService {
         safeLocalStorage.setItem('jwt_token', token);
       }
 
-      const decodedUser = jwtDecode(token);
+      const decodedUser = jwtDecode<CustomJwtPayload>(token);
       const user: User = {
-        id: typeof decodedUser.user_id === 'string' ? decodedUser.user_id : (decodedUser.sub as string),
-        email: decodedUser.email as string,
-        name: decodedUser.name ? decodedUser.name as string : decodedUser.email.split('@')[0],
+        id: typeof decodedUser.user_id === 'string' ? decodedUser.user_id || '' : (decodedUser.sub || ''),
+        email: decodedUser.email || '',
+        name: decodedUser.name || decodedUser.email?.split('@')[0] || '',
       };
 
       return { user, token };
@@ -70,11 +78,11 @@ class AuthService {
         safeLocalStorage.setItem('jwt_token', token);
       }
 
-      const decodedUser = jwtDecode(token);
+      const decodedUser = jwtDecode<CustomJwtPayload>(token);
       const user: User = {
-        id: typeof decodedUser.user_id === 'string' ? decodedUser.user_id : (decodedUser.sub as string),
-        email: decodedUser.email as string,
-        name: decodedUser.name ? decodedUser.name as string : decodedUser.email.split('@')[0],
+        id: typeof decodedUser.user_id === 'string' ? decodedUser.user_id || '' : (decodedUser.sub || ''),
+        email: decodedUser.email || '',
+        name: decodedUser.name || decodedUser.email?.split('@')[0] || '',
       };
 
       return { user, token };
@@ -94,9 +102,9 @@ class AuthService {
     }
 
     try {
-      const decoded = jwtDecode(token) as any;
+      const decoded = jwtDecode<CustomJwtPayload>(token);
       const currentTime = Date.now() / 1000;
-      return decoded.exp > currentTime;
+      return decoded.exp ? decoded.exp > currentTime : false;
     } catch (error) {
       return false;
     }
@@ -113,11 +121,11 @@ class AuthService {
     }
 
     try {
-      const decoded = jwtDecode(token) as any;
+      const decoded = jwtDecode<CustomJwtPayload>(token);
       return {
-        id: decoded.user_id || decoded.sub,
-        email: decoded.email,
-        name: decoded.name || decoded.email.split('@')[0],
+        id: decoded.user_id || decoded.sub || '',
+        email: decoded.email || '',
+        name: decoded.name || decoded.email?.split('@')[0] || '',
       };
     } catch (error) {
       return null;

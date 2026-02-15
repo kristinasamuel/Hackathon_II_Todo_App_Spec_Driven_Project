@@ -1,8 +1,7 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true, // Recommended for Next.js
-  // For Turbopack issues or explicit disabling
+  swcMinify: true,
   experimental: {
     // Disable Turbopack explicitly as requested
     // This is often not needed in production but can help resolve development warnings
@@ -16,6 +15,10 @@ const nextConfig: NextConfig = {
   // (e.g., specific AI libraries that might not be pre-compiled for browser)
   // you might need to add them here. Example:
   // transpilePackages: ["@google/gemini-pro"],
+  // Images configuration for Vercel deployment
+  images: {
+    domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

@@ -6,6 +6,7 @@ import { useTasks } from '@/hooks/useTasks';
 import { useRouter } from 'next/navigation';
 import TaskForm from '@/components/tasks/TaskForm';
 import TaskList from '@/components/tasks/TaskList';
+import { Task } from '@/services/tasks';
 
 const TasksPage: React.FC = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
