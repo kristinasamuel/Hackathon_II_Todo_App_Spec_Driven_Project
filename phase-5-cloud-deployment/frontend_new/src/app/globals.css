@@ -1,4 +1,7 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
@@ -7,26 +10,6 @@
   --primary-light: #7dd3fc; /* Sky blue light */
   --secondary: #f0fdfa; /* Light teal background */
   --accent: #f97316; /* Vibrant orange */
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-light: var(--primary-light);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a; /* Dark blue-gray */
-    --foreground: #f1f5f9; /* Light gray-blue */
-    --primary: #2dd4bf; /* Bright teal */
-    --primary-light: #bae6fd; /* Soft sky blue */
-    --secondary: #1e293b; /* Darker blue-gray */
-    --accent: #fb923c; /* Warm orange */
-  }
 }
 
 body {
