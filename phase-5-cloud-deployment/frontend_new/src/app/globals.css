@@ -1,30 +1,33 @@
-@tailwind base;
-@tailwind components;
+@import "tailwindcss";
 
-@tailwind utilities;
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #1f2937;
+  --color-primary: #14b8a6;
+  --color-primary-light: #7dd3fc;
+  --color-secondary: #f0fdfa;
+  --color-accent: #f97316;
+}
 
 :root {
   --background: #ffffff;
   --foreground: #1f2937;
-  --primary: #14b8a6; /* Emerald teal */
-  --primary-light: #7dd3fc; /* Sky blue light */
-  --secondary: #f0fdfa; /* Light teal background */
-  --accent: #f97316; /* Vibrant orange */
+  --primary: #14b8a6;
+  --primary-light: #7dd3fc;
+  --secondary: #f0fdfa;
+  --accent: #f97316;
 }
 
 body {
   background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%);
   color: var(--foreground);
-  font-family: var(--font-inter), sans-serif;
   min-height: 100vh;
 }
 
-/* Smooth transitions for better UX */
 * {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
